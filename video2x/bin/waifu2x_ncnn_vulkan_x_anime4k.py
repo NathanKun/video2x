@@ -50,4 +50,3 @@ class Waifu2xNcnnVulkanXAnime4k:
 
         return "Waifu2xNcnnVulkan return: \n" + str(w2_return) + "\n\nAnime4k return: \n" + str(anime4k_return)
 
-

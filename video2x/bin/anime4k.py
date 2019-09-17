@@ -50,36 +50,31 @@ class Anime4k:
             # return value is the sum of all execution return codes
             return_value = 0
 
-            # get a list lof all image files in input_directory
-            extracted_frame_files = [f for f in input_directory.iterdir() if str(f).lower().endswith('.png') or str(f).lower().endswith('.jpg')]
+            # upscale images in input_directory
+            execute = [
+                self.waifu2x_settings['java_path'],
+                '-jar',
+                self.waifu2x_settings['anime4k_path'],
+                str(input_directory.absolute()),
+                str(output_directory / image.name),
+                str(scale_ratio)
+            ]
 
-            # upscale each image in input_directory
-            for image in extracted_frame_files:
+            # optional arguments
+            kwargs = [
+                'push_strength',
+                'push_grad_strength'
+            ]
 
-                execute = [
-                    self.waifu2x_settings['java_path'],
-                    '-jar',
-                    self.waifu2x_settings['anime4k_path'],
-                    str(image.absolute()),
-                    str(output_directory / image.name),
-                    str(scale_ratio)
-                ]
+            # if optional argument specified, append value to execution list
+            for arg in kwargs:
+                if locals()[arg] is not None:
+                    execute.extend([locals([arg])])
 
-                # optional arguments
-                kwargs = [
-                    'push_strength',
-                    'push_grad_strength'
-                ]
-
-                # if optional argument specified, append value to execution list
-                for arg in kwargs:
-                    if locals()[arg] is not None:
-                        execute.extend([locals([arg])])
-
-                self.print_lock.acquire()
-                Avalon.debug_info(f'Executing: {execute}', )
-                self.print_lock.release()
-                return_value += subprocess.run(execute, check=True).returncode
+            self.print_lock.acquire()
+            Avalon.debug_info(f'Executing: {execute}',)
+            self.print_lock.release()
+            return_value += subprocess.run(execute, check=True).returncode
 
             # print thread exiting message
             self.print_lock.acquire()
